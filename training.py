@@ -58,7 +58,7 @@ def define_x_variables(csv):
 	return x_var
 
 def define_y_variables(csv):
-	y_var = csv.iloc[:,28:31].values
+	y_var = csv.iloc[:,28].values
 	return y_var
 
 def missing_values(): 
@@ -95,6 +95,12 @@ def train_multiple_linear_regression():
 	multi_model = multi_regression.fit(X_train, Y_train)
 
 	Y_predict = multi_regression.predict(X_test)
+
+	for x in range(len(Y_predict)):
+		if Y_predict[x] >= .50: 
+			Y_predict[x] = int(1)
+		else: 
+			Y_predict[x] = int(0)
 
 	print "Prediction: "
 	print (Y_predict)
