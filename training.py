@@ -71,6 +71,16 @@ def split_dataset(X, Y, test_size):
 	X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size = test_size)
 	return X_train, X_test, Y_train, Y_test
 
+def test_accuracy(Y_predict, Y_actual):
+
+	num_matches = 0
+
+	for x in range(len(Y_predict)):
+		if Y_predict[x] == Y_actual[x]: 
+			num_matches = num_matches + 1
+
+	return float(num_matches)/float(len(Y_predict)+1)
+
 def train_multiple_linear_regression():
 	#import linear regression model
 	from sklearn.linear_model import LinearRegression
@@ -106,6 +116,11 @@ def train_multiple_linear_regression():
 	print (Y_predict)
 	print "Actual: " 
 	print (Y_test)
+
+	accuracy = test_accuracy(Y_predict, Y_test)
+	print "Accuracy: "
+	print (accuracy * 100)
+
 
 	# debug code
 	#print "X : ", X
