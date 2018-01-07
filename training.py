@@ -8,6 +8,7 @@ import sklearn as sk
 import pandas as pd 
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
 
 # use this function to open up the excel document
 def open_data(PATH): 
@@ -81,6 +82,12 @@ def test_accuracy(Y_predict, Y_actual):
 
 	return float(num_matches)/float(len(Y_predict)+1)
 
+def random_forest_classification(X_train, Y_train, X_test):
+	forest_regressor = RandomForestRegressor(n_estimators = 1000)
+	forest_regressor.fit(X_train, Y_train)
+	Y_predict = forest_regressor.predict(X_test)
+	return Y_predict
+
 def train_multiple_linear_regression():
 	#import linear regression model
 	from sklearn.linear_model import LinearRegression
@@ -106,31 +113,29 @@ def train_multiple_linear_regression():
 
 	Y_predict = multi_regression.predict(X_test)
 
+	Y_predict_forest = random_forest_classification(X_train, Y_train, X_test)
+
 	for x in range(len(Y_predict)):
 		if Y_predict[x] >= .50: 
 			Y_predict[x] = int(1)
 		else: 
 			Y_predict[x] = int(0)
 
-	print "Prediction: "
+	print "Prediction (MLR): "
 	print (Y_predict)
+	print "Prediction (RFC): "
+	print (Y_predict_forest)
 	print "Actual: " 
 	print (Y_test)
 
 	accuracy = test_accuracy(Y_predict, Y_test)
-	print "Accuracy: "
+	print "Accuracy(MLR): "
 	print (accuracy * 100)
 
 
-	# debug code
-	#print "X : ", X
-	#for x in range(len(X)):
-	#	print X[x]
-	#print "Y : ", Y
-	#for y in range(len(Y)):
-	#	print Y[y]
-	#print "preprocessed_data: ", preprocessed_data
-
+	accuracy_forest = test_accuracy(Y_predict_forest, Y_test)
+	print "Accuracy(RFC): "
+	print (accuracy * 100)
 
 if __name__ == "__main__":
 	#running the multiple linear regression model
