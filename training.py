@@ -69,10 +69,6 @@ def missing_values():
 def replace_questions_marks(csv):
 	return csv.replace('?', np.NaN)
 
-def split_dataset(X, Y, test_size):
-	X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size = test_size)
-	return X_train, X_test, Y_train, Y_test
-
 def test_accuracy(Y_predict, Y_actual):
 
 	num_matches = 0
@@ -116,7 +112,7 @@ def train_multiple_linear_regression():
 	print "Accuracy(RFC): "
 	#print (rfc_model.score(X_train, Y_train))	
 	#print (accuracy_forest * 100)
-	print (accuracy_score(Y_test, Y_predict_forest))
+	print (accuracy_score(Y_test, Y_predict_forest) * 100.)
 
 if __name__ == "__main__":
 	#running the multiple linear regression model
