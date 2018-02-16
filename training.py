@@ -8,11 +8,12 @@ import sklearn as sk
 import pandas as pd 
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestRegressor
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
 
 # use this function to open up the excel document
 def open_data(PATH): 
-	csv = pd.read_csv("Data/kag_risk_factors_cervical_cancer.csv")
+	csv = pd.read_csv("/Vitrix_Health/Cervical_Cancer_ML/Data/cervical-cancer-risk-classification/kag_risk_factors_cervical_cancer.csv")
 	return csv
 
 # use this function to get rid of missing data and
@@ -83,22 +84,18 @@ def test_accuracy(Y_predict, Y_actual):
 	return float(num_matches)/float(len(Y_predict)+1)
 
 def random_forest_classification(X_train, Y_train, X_test):
-	forest_regressor = RandomForestRegressor(n_estimators = 1000)
-	forest_regressor.fit(X_train, Y_train)
-	Y_predict = forest_regressor.predict(X_test)
-	return Y_predict
+	forest_classifier = RandomForestClassifier(n_estimators = 1000)
+	forest_classifier.fit(X_train, Y_train)
+	Y_predict = forest_classifier.predict(X_test)
+	return forest_classifier ,Y_predict
 
 def train_multiple_linear_regression():
-	#import linear regression model
-	from sklearn.linear_model import LinearRegression
-
 	# open dataset
 	cervical_url = "cervical-cancer-risk-classification"
 	cervical_csv = open_data(cervical_url)
 
 	# alot of '?' values so we need to replace
 	cervical_csv = replace_questions_marks(cervical_csv)
-
 	preprocessed_csv = data_preprocessing(cervical_csv)
 
 	# define X and Y variables	
@@ -107,35 +104,19 @@ def train_multiple_linear_regression():
 
 	X_train, X_test, Y_train, Y_test = split_dataset(X, Y, test_size = .20)
 
-	# run regression 
-	multi_regression = LinearRegression()
-	multi_model = multi_regression.fit(X_train, Y_train)
+	# run classifier
+	rfc_model, Y_predict_forest = random_forest_classification(X_train, Y_train, X_test)
 
-	Y_predict = multi_regression.predict(X_test)
-
-	Y_predict_forest = random_forest_classification(X_train, Y_train, X_test)
-
-	for x in range(len(Y_predict)):
-		if Y_predict[x] >= .50: 
-			Y_predict[x] = int(1)
-		else: 
-			Y_predict[x] = int(0)
-
-	print "Prediction (MLR): "
-	print (Y_predict)
 	print "Prediction (RFC): "
 	print (Y_predict_forest)
 	print "Actual: " 
 	print (Y_test)
 
-	accuracy = test_accuracy(Y_predict, Y_test)
-	print "Accuracy(MLR): "
-	print (accuracy * 100)
-
-
-	accuracy_forest = test_accuracy(Y_predict_forest, Y_test)
+	#accuracy_forest = test_accuracy(Y_predict_forest, Y_test)
 	print "Accuracy(RFC): "
-	print (accuracy * 100)
+	#print (rfc_model.score(X_train, Y_train))	
+	#print (accuracy_forest * 100)
+	print (accuracy_score(Y_test, Y_predict_forest))
 
 if __name__ == "__main__":
 	#running the multiple linear regression model
