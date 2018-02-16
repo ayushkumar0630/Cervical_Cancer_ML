@@ -10,6 +10,8 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
+from sklearn.tree import export_graphviz
+import os
 
 # use this function to open up the excel document
 def open_data(PATH): 
@@ -52,7 +54,6 @@ def data_preprocessing(csv):
 
 	#for catagorical data
 	csv = pd.get_dummies(data=csv, columns=['Smokes','Hormonal Contraceptives','IUD','STDs', 'Dx:Cancer','Dx:CIN','Dx:HPV','Dx','Hinselmann','Citology','Schiller'])
-
 	return csv
 
 def define_x_variables(csv):
@@ -60,17 +61,17 @@ def define_x_variables(csv):
 	return x_var
 
 def define_y_variables(csv):
-	y_var = csv.iloc[:,28].values
+	y_var = csv.iloc[:,28:].values
 	return y_var
-
-def missing_values(): 
-	imputer = sk.imputer(missing_values = 'NaN', strategy = 'mean', axis = 0)
 
 def replace_questions_marks(csv):
 	return csv.replace('?', np.NaN)
 
-def test_accuracy(Y_predict, Y_actual):
+def split_dataset(X, Y, test_size):
+	X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size = test_size)
+	return X_train, X_test, Y_train, Y_test
 
+def test_accuracy(Y_predict, Y_actual):
 	num_matches = 0
 
 	for x in range(len(Y_predict)):
@@ -83,9 +84,20 @@ def random_forest_classification(X_train, Y_train, X_test):
 	forest_classifier = RandomForestClassifier(n_estimators = 1000)
 	forest_classifier.fit(X_train, Y_train)
 	Y_predict = forest_classifier.predict(X_test)
-	return forest_classifier ,Y_predict
+	return forest_classifier, Y_predict
 
-def train_multiple_linear_regression():
+def plot_feature_importance(rfc_model, features):
+	importances = rfc_model.feature_importances_
+	indices = np.argsort(importances)
+	
+	plt.figure(1)
+	plt.title('Feature Importances')
+	plt.barh(range(len(indices)), importances[indices], color='b', align='center')
+	plt.yticks(range(len(indices)), features[indices])	
+	plt.xlabel('Relative Importance')
+	plt.show()
+
+def train_random_forest_classifier():
 	# open dataset
 	cervical_url = "cervical-cancer-risk-classification"
 	cervical_csv = open_data(cervical_url)
@@ -98,7 +110,7 @@ def train_multiple_linear_regression():
 	X = define_x_variables(preprocessed_csv)
 	Y = define_y_variables(preprocessed_csv)
 
-	X_train, X_test, Y_train, Y_test = split_dataset(X, Y, test_size = .20)
+	X_train, X_test, Y_train, Y_test = split_dataset(X, Y, test_size = .25)
 
 	# run classifier
 	rfc_model, Y_predict_forest = random_forest_classification(X_train, Y_train, X_test)
@@ -108,12 +120,13 @@ def train_multiple_linear_regression():
 	print "Actual: " 
 	print (Y_test)
 
-	#accuracy_forest = test_accuracy(Y_predict_forest, Y_test)
 	print "Accuracy(RFC): "
-	#print (rfc_model.score(X_train, Y_train))	
-	#print (accuracy_forest * 100)
 	print (accuracy_score(Y_test, Y_predict_forest) * 100.)
+
+	#plot_feature_importance(rfc_model, X)
+	#export_graphviz(rfc_model.fit(X_train, Y_train), filled=True, rounded=True)
+	#os.system('dot -Tpng tree.dot -o tree.png')
 
 if __name__ == "__main__":
 	#running the multiple linear regression model
-	train_multiple_linear_regression()
+	train_random_forest_classifier()
