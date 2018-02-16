@@ -115,6 +115,7 @@ def train_random_forest_classifier():
 	# run classifier
 	rfc_model, Y_predict_forest = random_forest_classification(X_train, Y_train, X_test)
 
+	"""	
 	print "Prediction (RFC): "
 	print (Y_predict_forest)
 	print "Actual: " 
@@ -122,7 +123,8 @@ def train_random_forest_classifier():
 
 	print "Accuracy(RFC): "
 	print (accuracy_score(Y_test, Y_predict_forest) * 100.)
-
+	"""
+	return accuracy_score(Y_test, Y_predict_forest) * 100.
 	#plot_feature_importance(rfc_model, X)
 	#export_graphviz(rfc_model.fit(X_train, Y_train), filled=True, rounded=True)
 	#os.system('dot -Tpng tree.dot -o tree.png')
