@@ -12,10 +12,14 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.tree import export_graphviz
 import os
+from sklearn.decomposition import PCA
 
 # use this function to open up the excel document
 def open_data(PATH): 
-	csv = pd.read_csv("/Vitrix_Health/Cervical_Cancer_ML/Data/cervical-cancer-risk-classification/kag_risk_factors_cervical_cancer.csv")
+	#csv = pd.read_csv("/Vitrix_Health/Cervical_Cancer_ML/Data/cervical-cancer-risk-classification/kag_risk_factors_cervical_cancer.csv")
+	#csv = pd.read_csv("\Cervical_Cancer_ML\Cervical_Cancer_ML\Data\cervical-cancer-risk-classification\kag_risk_factors_cervical_cancer.csv")
+
+	csv = pd.read_csv("\Cervical_Cancer_ML\Cervical_Cancer_ML\Data\cervical-cancer-risk-classification\kag_risk_factors_cervical_cancer_no_sex.csv")
 	return csv
 
 # use this function to get rid of missing data and
@@ -25,8 +29,9 @@ def data_preprocessing(csv):
 	csv = csv.convert_objects(convert_numeric=True)
 
 	# for continuous data
-	csv['Number of sexual partners'] = csv['Number of sexual partners'].fillna(csv['Number of sexual partners'].median())
-	csv['First sexual intercourse'] = csv['First sexual intercourse'].fillna(csv['First sexual intercourse'].median())
+	#csv['Number of sexual partners'] = csv['Number of sexual partners'].fillna(csv['Number of sexual partners'].median())
+	#csv['First sexual intercourse'] = csv['First sexual intercourse'].fillna(csv['First sexual intercourse'].median())
+	
 	csv['Num of pregnancies'] = csv['Num of pregnancies'].fillna(csv['Num of pregnancies'].median())
 	csv['Smokes'] = csv['Smokes'].fillna(1)
 	csv['Smokes (years)'] = csv['Smokes (years)'].fillna(csv['Smokes (years)'].median())
@@ -57,11 +62,13 @@ def data_preprocessing(csv):
 	return csv
 
 def define_x_variables(csv):
-	x_var = csv.iloc[:,0:27].values
+	#x_var = csv.iloc[:,0:27].values
+	x_var = csv.iloc[:,0:25].values
 	return x_var
 
 def define_y_variables(csv):
-	y_var = csv.iloc[:,28:].values
+	#y_var = csv.iloc[:,28:].values
+	y_var = csv.iloc[:,26:].values
 	return y_var
 
 def replace_questions_marks(csv):
@@ -110,24 +117,17 @@ def train_random_forest_classifier():
 	X = define_x_variables(preprocessed_csv)
 	Y = define_y_variables(preprocessed_csv)
 
+	#pca = PCA()
+	#new_X = pca.fit_transform(X)
+	#print (pca.components_)
+
 	X_train, X_test, Y_train, Y_test = split_dataset(X, Y, test_size = .25)
 
 	# run classifier
 	rfc_model, Y_predict_forest = random_forest_classification(X_train, Y_train, X_test)
 
-	"""	
-	print "Prediction (RFC): "
-	print (Y_predict_forest)
-	print "Actual: " 
-	print (Y_test)
-
-	print "Accuracy(RFC): "
 	print (accuracy_score(Y_test, Y_predict_forest) * 100.)
-	"""
 	return accuracy_score(Y_test, Y_predict_forest) * 100.
-	#plot_feature_importance(rfc_model, X)
-	#export_graphviz(rfc_model.fit(X_train, Y_train), filled=True, rounded=True)
-	#os.system('dot -Tpng tree.dot -o tree.png')
 
 if __name__ == "__main__":
 	#running the multiple linear regression model
